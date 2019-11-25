@@ -129,3 +129,6 @@ for i in range(n_files):
 
     cv2.imwrite(outdir_path+basename+'_shading.jpg', 255 * shading)
     cv2.imwrite(outdir_path+basename+'_rendering.jpg', 255 * rendering)
+
+    image_concat = (np.hstack((img_orig.astype(np.float32)/255, shading.clip(0, 1), albedo.clip(0, 1), rendering.clip(0, 1))) * 255).astype(np.uint8)
+    cv2.imwrite(outdir_path+basename+'_concat.jpg', image_concat)
