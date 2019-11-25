@@ -55,7 +55,7 @@ print('Selected light: %s' % light_basename)
 light = np.load(args.light_path)
 if light.shape[0] < light.shape[1]:
     light = light.T
-    
+
 n_rotation_div = 72
 
 for i in range(n_files):
@@ -63,7 +63,7 @@ for i in range(n_files):
     basepath = file[:-len(transport_postfix)]
     basename = os.path.basename(file)[:-len(transport_postfix)]
     print('Processing [%03d/%03d] %s' % (i+1, n_files, basename))
-    
+
     mask = cv2.imread(basepath + '_mask.png', cv2.IMREAD_COLOR)
 
     albedo = cv2.imread(basepath + '_albedo.jpg', cv2.IMREAD_COLOR)
@@ -78,14 +78,14 @@ for i in range(n_files):
     if transport is None:
         print('Error: cannot open transport for "%s", skipping' % (basepath + '_transport.npz'))
         continue
-    
+
     albedo = trim(albedo, mask)
     transport = trim(transport, mask)
 
     if gpu>-1:
         albedo = cuda.to_gpu(albedo)
         transport = cuda.to_gpu(transport)
-   
+
     tmp_renderings = []
     max_val = 0.
 
@@ -96,12 +96,12 @@ for i in range(n_files):
         coeffs[:,0] = sh_rot.sh_rot(R, light[:,0])
         coeffs[:,1] = sh_rot.sh_rot(R, light[:,1])
         coeffs[:,2] = sh_rot.sh_rot(R, light[:,2])
-        
+
         if gpu>-1:
             coeffs = cuda.to_gpu(coeffs)
-        
+
         shading = xp.matmul(transport, coeffs)
-        
+
         if not args.shading:
             rendering = albedo * shading
         else:

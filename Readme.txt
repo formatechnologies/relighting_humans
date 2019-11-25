@@ -7,7 +7,7 @@
 This directory contains source codes of the following paper:
 
 > Yoshihiro Kanamori, Yuki Endo: "Relighting Humans: Occlusion-Aware Inverse Rendering
-> for Full-Body Human Images," ACM Transactions on Graphics (Proc. of SIGGRAPH Asia 2018), 
+> for Full-Body Human Images," ACM Transactions on Graphics (Proc. of SIGGRAPH Asia 2018),
 > 37, 6, Article No. 270, November 2018.
 
 [Dependencies]
@@ -30,7 +30,7 @@ Inference with photos plus masks. Note that a trained model is required, which c
 $ python relight.py
 Relighting with a specified light. Note that inferred data (typically outputs by test_with_photos.py) must be already prepared. "ffmpeg" is also required for outputting mp4 movies.
 
-You can use the codes for scientific purposes only. Use in commercial projects and redistribution are not allowed without author's permission. Please cite our paper when using the codes. 
+You can use the codes for scientific purposes only. Use in commercial projects and redistribution are not allowed without author's permission. Please cite our paper when using the codes.
 
 =============================
 Contact Information

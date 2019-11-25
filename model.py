@@ -70,7 +70,7 @@ class CNNAE2ResNet(chainer.Chain):
             c1l = L.Convolution2D(512, 256, 4, stride=2, pad=1, initialW=w),  # 8 -> 4
             c2l = L.Convolution2D(256, 128, 4, stride=2, pad=1, initialW=w), # 4 -> 2
             c3l = L.Convolution2D(128, 27, 4, stride=2, pad=1, initialW=w), # 2 -> 1
-            
+
             bnc1 = L.BatchNormalization(128),
             bnc2 = L.BatchNormalization(256),
             bnc3 = L.BatchNormalization(512),
@@ -88,7 +88,7 @@ class CNNAE2ResNet(chainer.Chain):
             bndc2b = L.BatchNormalization(256),
             bndc3b = L.BatchNormalization(128),
             bndc4b = L.BatchNormalization(64),
-            
+
             bnc0l = L.BatchNormalization(512),
             bnc1l = L.BatchNormalization(256),
             bnc2l = L.BatchNormalization(128)
@@ -119,7 +119,7 @@ class CNNAE2ResNet(chainer.Chain):
         ha = self.dc5a(ha)
 
         hrb = self.rb(hc5, test=not self.train)
-        
+
         hb = F.relu(F.dropout(self.bndc0b(self.dc0b(hrb), test=not self.train), 0.5, train=self.train_dropout))
         hb = F.concat((hb,hc4))
         hb = F.relu(F.dropout(self.bndc1b(self.dc1b(hb), test=not self.train), 0.5, train=self.train_dropout))
@@ -131,9 +131,9 @@ class CNNAE2ResNet(chainer.Chain):
         hb = F.relu(self.bndc4b(self.dc4b(hb), test=not self.train))
         hb = F.concat((hb,hc0))
         hb = F.clip(self.dc5b(hb), 0.0, 1.0)
-        
+
         hc = F.concat((hc5, hra, hrb))
-        
+
         hc = F.leaky_relu(self.bnc0l(self.c0l(hc), test=not self.train))
         hc = F.leaky_relu(self.bnc1l(self.c1l(hc), test=not self.train))
         hc = F.leaky_relu(self.bnc2l(self.c2l(hc), test=not self.train))

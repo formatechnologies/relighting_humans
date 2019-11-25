@@ -176,7 +176,7 @@ h_kernel[np.identity(9).astype(np.bool)] = np.array([[0,0,0],[0,-1,1],[0,0,0]], 
 if gpu>-1:
     v_kernel = cuda.to_gpu(v_kernel)
     h_kernel = cuda.to_gpu(h_kernel)
-    
+
 v_kernel3 = np.zeros((3,3,3,3),dtype=np.float32)
 h_kernel3 = v_kernel3.copy()
 v_kernel3[np.identity(3).astype(np.bool)] = np.array([[0,1,0],[0,-1,0],[0,0,0]], dtype=np.float32)
@@ -189,7 +189,7 @@ if gpu>-1:
 for epoch in range(max_epoch):
     print('[%s] epoch: %d, gpu: %d\n  outdir: %s' % (sys.argv[0], epoch, gpu, outdir_path))
     start_epoch = time.time()
-    
+
     L_sum = 0.
     L_transport_sum = 0.
     L_albedo_sum = 0.
@@ -208,7 +208,7 @@ for epoch in range(max_epoch):
     L_rendering_all_sum = 0.
     perm_img = np.random.permutation(N_train_img)
     perm_light = np.random.permutation(N_train_light)
-    
+
     pbar = tqdm(total=N_train_total, desc='  train', ascii=True)
     for bi in range(N_train_img):
         for i in perm_img[bi:bi+1]:
@@ -222,7 +222,7 @@ for epoch in range(max_epoch):
                 mask = cuda.to_gpu(mask)
                 eroded_mask = cuda.to_gpu(eroded_mask)
                 transport = cuda.to_gpu(transport)
-            
+
             albedo_batch = chainer.Variable(albedo.transpose(2,0,1)[None,:,:])
             erode3_batch = chainer.Variable(eroded_mask[None,:,:].repeat(3,axis=0)[None,:,:,:])
             erode9_batch = chainer.Variable(eroded_mask[None,:,:].repeat(9,axis=0)[None,:,:,:])
@@ -253,17 +253,17 @@ for epoch in range(max_epoch):
                     img_batch = mask3_batch * img_batch
 
                     transport_hat, albedo_hat, light_hat = m_shared(img_batch)
-                    
+
                     transport_hat = mask9_batch * transport_hat
                     L_transport = mean_absolute_error(transport_hat, transport_batch)
-                    
+
                     transport_hat_dy = erode9_batch * F.convolution_2d(transport_hat, W=v_kernel, pad=1)
                     transport_hat_dx = erode9_batch * F.convolution_2d(transport_hat, W=h_kernel, pad=1)
                     L_transport_tv = (mean_absolute_error(transport_hat_dy, zero_transport) + mean_absolute_error(transport_hat_dx, zero_transport))
-                    
+
                     albedo_hat = mask3_batch * albedo_hat
                     L_albedo = mean_absolute_error(albedo_hat, albedo_batch)
-                    
+
                     albedo_hat_dy = erode3_batch * F.convolution_2d(albedo_hat, W=v_kernel3, pad=1)
                     albedo_hat_dx = erode3_batch * F.convolution_2d(albedo_hat, W=h_kernel3, pad=1)
                     L_albedo_tv = (mean_absolute_error(albedo_hat_dy, zero_albedo) + mean_absolute_error(albedo_hat_dx, zero_albedo))
@@ -292,25 +292,25 @@ for epoch in range(max_epoch):
 
                     rendering_albedo_hat = albedo_hat * shading_batch
                     L_rendering_albedo = mean_absolute_error(rendering_albedo_hat, rendering_batch)
-                    
+
                     rendering_transport_hat = albedo_batch * shading_transport_hat
                     L_rendering_transport = mean_absolute_error(rendering_transport_hat, rendering_batch)
-                    
+
                     rendering_light_hat = albedo_batch * shading_light_hat
                     L_rendering_light = mean_absolute_error(rendering_light_hat, rendering_batch)
-                    
+
                     rendering_albedo_transport_hat = albedo_hat * shading_transport_hat
                     L_rendering_albedo_transport = mean_absolute_error(rendering_albedo_transport_hat, rendering_batch)
-                    
+
                     rendering_transport_light_hat = albedo_batch * shading_light_hat
                     L_rendering_transport_light = mean_absolute_error(rendering_transport_light_hat, rendering_batch)
 
                     rendering_albedo_light_hat = albedo_hat * shading_light_hat
                     L_rendering_albedo_light = mean_absolute_error(rendering_albedo_light_hat, rendering_batch)
-                    
+
                     rendering_all_hat = albedo_hat * shading_all_hat
                     L_rendering_all = mean_absolute_error(rendering_all_hat, rendering_batch)
-                    
+
                     L = w_transport * L_transport + w_transport_tv * L_transport_tv + w_albedo * L_albedo + \
                         w_albedo_tv * L_albedo_tv + w_light * L_light + w_shading_transport * L_shading_transport + \
                         w_shading_light * L_shading_light + w_shading_all * L_shading_all + w_rendering_albedo * L_rendering_albedo + \
@@ -321,7 +321,7 @@ for epoch in range(max_epoch):
                     m_shared.cleargrads()
                     L.backward()
                     o_shared.update()
-                    
+
                     L_sum += L_transport.data + L_albedo.data + L_light.data + L_transport_tv.data + L_albedo_tv.data + \
                         L_shading_transport.data + L_shading_light.data + L_shading_all.data + L_rendering_albedo.data + \
                         L_rendering_transport.data + L_rendering_light.data + L_rendering_albedo_transport.data + \
@@ -356,9 +356,9 @@ for epoch in range(max_epoch):
         raw_L_albedo = cuda.to_cpu(raw_L_albedo)
         raw_L_light = cuda.to_cpu(raw_L_light)
 
-    print('    loss[total/albedo/transport/light] = [%f,%f,%f,%f], time = %.3f [sec]' % 
+    print('    loss[total/albedo/transport/light] = [%f,%f,%f,%f], time = %.3f [sec]' %
         (raw_L, raw_L_albedo, raw_L_transport, raw_L_light, time_epoch))
-    
+
     L_sum = 0.
     L_transport_sum = 0.
     L_albedo_sum = 0.
@@ -374,7 +374,7 @@ for epoch in range(max_epoch):
     L_rendering_albedo_transport_sum = 0.
     L_rendering_transport_light_sum = 0.
     L_rendering_albedo_light_sum = 0.
-    L_rendering_all_sum = 0.    
+    L_rendering_all_sum = 0.
     perm_test_img = np.random.permutation(N_test_img)
     perm_test_light = np.random.permutation(N_test_light)
 
@@ -388,13 +388,13 @@ for epoch in range(max_epoch):
             mask = cv2.imread(test_fpath[i][:-7]+"mask.png", cv2.IMREAD_GRAYSCALE).astype(np.float32) / 255.
             eroded_mask = skimage.morphology.binary_erosion(mask).astype(np.float32)
             transport = np.load(test_fpath[i][:-7]+"transport.npz")['T']
-            
+
             if gpu>-1:
                 albedo = cuda.to_gpu(albedo)
                 mask = cuda.to_gpu(mask)
                 eroded_mask = cuda.to_gpu(eroded_mask)
                 transport = cuda.to_gpu(transport)
-            
+
             albedo_batch = chainer.Variable(albedo.transpose(2,0,1)[None,:,:,:], volatile=True)
             erode3_batch = chainer.Variable(eroded_mask[None,:,:].repeat(3,axis=0)[None,:,:,:], volatile=True)
             erode9_batch = chainer.Variable(eroded_mask[None,:,:].repeat(9,axis=0)[None,:,:,:], volatile=True)
@@ -415,23 +415,23 @@ for epoch in range(max_epoch):
                 for j in perm_test_light[bj:bj+1]:
                     light = test_lights[j]
                     light_batch = chainer.Variable(xp.array(light), volatile=True)
- 
+
                     shading = xp.matmul(transport, light)
                     shading = xp.clip(shading, 0., 10.)
                     shading_batch = chainer.Variable(shading.transpose(2,0,1)[None,:,:,:], volatile=True)
- 
+
                     rendering = albedo * shading
                     rendering_batch = chainer.Variable(rendering.transpose(2,0,1)[None,:,:,:], volatile=True)
- 
+
                     img = 2.*rendering-1.
                     img_batch = chainer.Variable(img.transpose(2,0,1)[None,:,:,:], volatile=True)
                     img_batch = mask3_batch * img_batch
- 
+
                     transport_hat, albedo_hat, light_hat = m_shared(img_batch)
-                    
+
                     transport_hat = mask9_batch * transport_hat
                     L_transport = mean_absolute_error(transport_hat, transport_batch)
-                     
+
                     transport_hat_dy = F.convolution_2d(transport_hat, W=v_kernel, pad=1)
                     transport_hat_dx = F.convolution_2d(transport_hat, W=h_kernel, pad=1)
                     L_transport_tv = mean_absolute_error(transport_hat_dy, transport_dy) + mean_absolute_error(transport_hat_dx, transport_dx)
@@ -445,7 +445,7 @@ for epoch in range(max_epoch):
                     L_albedo_tv = mean_absolute_error(albedo_hat_dy, albedo_dy) + mean_absolute_error(albedo_hat_dx, albedo_dx)
 
                     L_light = mean_absolute_error(F.expand_dims(light_hat, axis=0), F.expand_dims(light_batch, axis=0))
-                    
+
                     transport_reshaped_hat = F.transpose(transport_hat, axes=(0,2,3,1))
                     transport_reshaped_hat = F.reshape(transport_reshaped_hat, (-1, 9))
                     shading_transport_hat = F.matmul(transport_reshaped_hat, light_batch)
@@ -468,25 +468,25 @@ for epoch in range(max_epoch):
 
                     rendering_albedo_hat = albedo_hat * shading_batch
                     L_rendering_albedo = mean_absolute_error(rendering_albedo_hat, rendering_batch)
-                    
+
                     rendering_transport_hat = albedo_batch * shading_transport_hat
                     L_rendering_transport = mean_absolute_error(rendering_transport_hat, rendering_batch)
-                    
+
                     rendering_light_hat = albedo_batch * shading_light_hat
                     L_rendering_light = mean_absolute_error(rendering_light_hat, rendering_batch)
-                    
+
                     rendering_albedo_transport_hat = albedo_hat * shading_transport_hat
                     L_rendering_albedo_transport = mean_absolute_error(rendering_albedo_transport_hat, rendering_batch)
-                    
+
                     rendering_transport_light_hat = albedo_batch * shading_light_hat
                     L_rendering_transport_light = mean_absolute_error(rendering_transport_light_hat, rendering_batch)
 
                     rendering_albedo_light_hat = albedo_hat * shading_light_hat
                     L_rendering_albedo_light = mean_absolute_error(rendering_albedo_light_hat, rendering_batch)
-                    
+
                     rendering_all_hat = albedo_hat * shading_all_hat
                     L_rendering_all = mean_absolute_error(rendering_all_hat, rendering_batch)
-                    
+
                     L_sum += L_transport.data + L_albedo.data + L_light.data + L_transport_tv.data + L_albedo_tv.data + \
                         L_shading_transport.data + L_shading_light.data + L_shading_all.data + L_rendering_albedo.data + \
                         L_rendering_transport.data + L_rendering_light.data + L_rendering_albedo_transport.data + \
@@ -521,11 +521,11 @@ for epoch in range(max_epoch):
         raw_L_transport = cuda.to_cpu(raw_L_transport)
         raw_L_albedo = cuda.to_cpu(raw_L_albedo)
         raw_L_light = cuda.to_cpu(raw_L_light)
-    print('    loss[total/albedo/transport/light] = [%f,%f,%f,%f], time = %.3f [sec]' % 
+    print('    loss[total/albedo/transport/light] = [%f,%f,%f,%f], time = %.3f [sec]' %
         (raw_L, raw_L_albedo, raw_L_transport, raw_L_light, time_test))
 
     # train
-    
+
     albedo = cv2.imread(train_fpath[perm_img[0]], cv2.IMREAD_COLOR).astype(np.float32) / 255.
     mask = cv2.imread(train_fpath[perm_img[0]][:-7]+"mask.png", cv2.IMREAD_GRAYSCALE).astype(np.float32) / 255.
     transport = np.load(train_fpath[perm_img[0]][:-7]+"transport.npz")['T']
@@ -538,7 +538,7 @@ for epoch in range(max_epoch):
     np.save(outdir_path+("train_light_epoch%03d.npy" % epoch), res_light)
 
     # test
-    
+
     albedo = cv2.imread(test_fpath[perm_test_img[0]], cv2.IMREAD_COLOR).astype(np.float32) / 255.
     mask = cv2.imread(test_fpath[perm_test_img[0]][:-7]+"mask.png", cv2.IMREAD_GRAYSCALE).astype(np.float32) / 255.
     transport = np.load(test_fpath[perm_test_img[0]][:-7]+"transport.npz")['T']

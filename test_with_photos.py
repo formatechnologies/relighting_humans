@@ -85,10 +85,10 @@ n_files = len(img_paths)
 for i in range(n_files):
     file = img_paths[i]
     print('Processing [%03d/%03d] %s' % (i+1, n_files, file))
-    
+
     img_orig = cv2.imread(file, cv2.IMREAD_COLOR)
     mask_orig = cv2.imread(file[:-4]+'_mask.png', cv2.IMREAD_GRAYSCALE)
-    
+
     if img_orig is None:
         print('  Error: cannot open image: %s' % file)
         continue
@@ -96,30 +96,30 @@ for i in range(n_files):
     if mask_orig is None:
         print('  Error: cannot open mask: %s' % (file[:-4]+'_mask.png'))
         continue
-    
+
     si = SquarizeImage(img_orig, mask_orig, 1024)
-    
+
     if img_orig.shape[0] == target_image_size and img_orig.shape[1] == target_image_size:
         img = img_orig.copy()
         mask = mask_orig.copy()
     else:
         img = si.get_squared_image()
         mask = si.get_squared_mask()
-    
+
     img = img.astype(np.float32) / 255.
     mask = mask.astype(np.float32) / 255.
-    
+
     t_start = time.time()
     transport, albedo, light = infer_light_transport_albedo_and_light(img, mask)
     print('Inference time: %f sec' % (time.time() - t_start))
 
     basename = os.path.basename(file)[:-4]
-    
+
     albedo = si.replace_image(np.zeros(img_orig.shape, dtype=albedo.dtype), mask_orig, albedo)
     transport = si.replace_image(np.zeros((img_orig.shape[0], img_orig.shape[1], 9), dtype=transport.dtype), mask_orig, transport)
     shading = np.matmul(transport, light)
     rendering = albedo * shading
-    
+
     cv2.imwrite(outdir_path+os.path.basename(file), img_orig)
     cv2.imwrite(outdir_path+basename+'_albedo.jpg', 255 * albedo)
 
