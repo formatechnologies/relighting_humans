@@ -1,3 +1,22 @@
+# Installation
+Install
+- Chainer (scripts have been updated for Python3 + Chainer 6.5.0)
+- Cupy for CUDA 10.0 (for different CUDA version, see https://docs-cupy.chainer.org/en/stable/install.html)
+- OpenCV Python
+- ffmpeg (optional)
+```
+python3 -m pip install --user chainer
+python3 -m pip install --user cupy-cuda100
+python3 -m pip install --user opencv-python
+sudo apt install ffmpeg
+```
+# Usage
+```
+python test_with_photos.py -g=0     # Output light, light transport, albedo, shading, rendering
+python relight.py                   # Output relighting frames and video
+python test_with_photos_relight.py  # Calls iris.relighting_humans.RelightingHumans
+```
+# Original Readme.txt
 +-----------------------------------------------------------
 | Relighting Humans: Occlusion-Aware Inverse Rendering for Full-Body Human Images
 | Project page: http://kanamori.cs.tsukuba.ac.jp/projects/relighting_human/
