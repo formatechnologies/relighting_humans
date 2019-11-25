@@ -2,7 +2,8 @@ import chainer
 from chainer import cuda
 import chainer.functions as F
 import chainer.links as L
-from chainer.functions import caffe
+# from chainer.functions import caffe
+from chainer.links import caffe
 from chainer import Variable, optimizers
 from chainer.functions.evaluation import accuracy
 from chainer.functions.loss import mean_squared_error
@@ -21,9 +22,9 @@ class ResidualBlock(chainer.Chain):
             b2=L.BatchNormalization(n_out)
         )
 
-    def __call__(self, x, test):
-        h = F.relu(self.b1(self.c1(x), test=test))
-        h = self.b2(self.c2(h), test=test)
+    def __call__(self, x):
+        h = F.relu(self.b1(self.c1(x)))
+        h = self.b2(self.c2(h))
         """
         if x.data.shape != h.data.shape:
             xp = chainer.cuda.get_array_module(x.data)
@@ -98,45 +99,45 @@ class CNNAE2ResNet(chainer.Chain):
 
     def __call__(self, xi):
         hc0 = F.leaky_relu(self.c0(xi))
-        hc1 = F.leaky_relu(self.bnc1(self.c1(hc0), test=not self.train))
-        hc2 = F.leaky_relu(self.bnc2(self.c2(hc1), test=not self.train))
-        hc3 = F.leaky_relu(self.bnc3(self.c3(hc2), test=not self.train))
-        hc4 = F.leaky_relu(self.bnc4(self.c4(hc3), test=not self.train))
-        hc5 = F.leaky_relu(self.bnc5(self.c5(hc4), test=not self.train))
+        hc1 = F.leaky_relu(self.bnc1(self.c1(hc0)))
+        hc2 = F.leaky_relu(self.bnc2(self.c2(hc1)))
+        hc3 = F.leaky_relu(self.bnc3(self.c3(hc2)))
+        hc4 = F.leaky_relu(self.bnc4(self.c4(hc3)))
+        hc5 = F.leaky_relu(self.bnc5(self.c5(hc4)))
 
-        hra = self.ra(hc5, test=not self.train)
+        hra = self.ra(hc5)
 
-        ha = F.relu(F.dropout(self.bndc0a(self.dc0a(hra), test=not self.train), 0.5, train=self.train_dropout))
+        ha = F.relu(F.dropout(self.bndc0a(self.dc0a(hra)), 0.5))
         ha = F.concat((ha,hc4))
-        ha = F.relu(F.dropout(self.bndc1a(self.dc1a(ha), test=not self.train), 0.5, train=self.train_dropout))
+        ha = F.relu(F.dropout(self.bndc1a(self.dc1a(ha)), 0.5))
         ha = F.concat((ha,hc3))
-        ha = F.relu(F.dropout(self.bndc2a(self.dc2a(ha), test=not self.train), 0.5, train=self.train_dropout))
+        ha = F.relu(F.dropout(self.bndc2a(self.dc2a(ha)), 0.5))
         ha = F.concat((ha,hc2))
-        ha = F.relu(self.bndc3a(self.dc3a(ha), test=not self.train))
+        ha = F.relu(self.bndc3a(self.dc3a(ha)))
         ha = F.concat((ha,hc1))
-        ha = F.relu(self.bndc4a(self.dc4a(ha), test=not self.train))
+        ha = F.relu(self.bndc4a(self.dc4a(ha)))
         ha = F.concat((ha,hc0))
         ha = self.dc5a(ha)
 
-        hrb = self.rb(hc5, test=not self.train)
+        hrb = self.rb(hc5)
 
-        hb = F.relu(F.dropout(self.bndc0b(self.dc0b(hrb), test=not self.train), 0.5, train=self.train_dropout))
+        hb = F.relu(F.dropout(self.bndc0b(self.dc0b(hrb)), 0.5))
         hb = F.concat((hb,hc4))
-        hb = F.relu(F.dropout(self.bndc1b(self.dc1b(hb), test=not self.train), 0.5, train=self.train_dropout))
+        hb = F.relu(F.dropout(self.bndc1b(self.dc1b(hb)), 0.5))
         hb = F.concat((hb,hc3))
-        hb = F.relu(F.dropout(self.bndc2b(self.dc2b(hb), test=not self.train), 0.5, train=self.train_dropout))
+        hb = F.relu(F.dropout(self.bndc2b(self.dc2b(hb)), 0.5))
         hb = F.concat((hb,hc2))
-        hb = F.relu(self.bndc3b(self.dc3b(hb), test=not self.train))
+        hb = F.relu(self.bndc3b(self.dc3b(hb)))
         hb = F.concat((hb,hc1))
-        hb = F.relu(self.bndc4b(self.dc4b(hb), test=not self.train))
+        hb = F.relu(self.bndc4b(self.dc4b(hb)))
         hb = F.concat((hb,hc0))
         hb = F.clip(self.dc5b(hb), 0.0, 1.0)
 
         hc = F.concat((hc5, hra, hrb))
 
-        hc = F.leaky_relu(self.bnc0l(self.c0l(hc), test=not self.train))
-        hc = F.leaky_relu(self.bnc1l(self.c1l(hc), test=not self.train))
-        hc = F.leaky_relu(self.bnc2l(self.c2l(hc), test=not self.train))
+        hc = F.leaky_relu(self.bnc0l(self.c0l(hc)))
+        hc = F.leaky_relu(self.bnc1l(self.c1l(hc)))
+        hc = F.leaky_relu(self.bnc2l(self.c2l(hc)))
         hc = F.reshape(self.c3l(hc), (9, 3))
 
         return ha, hb, hc

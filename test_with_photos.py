@@ -59,9 +59,9 @@ def infer_light_transport_albedo_and_light(img, mask):
         mask3 = cuda.to_gpu(mask3)
         mask9 = cuda.to_gpu(mask9)
 
-    img_batch = chainer.Variable(img[None,:,:,:], volatile=True)
-    mask3_batch = chainer.Variable(mask3[None,:,:,:], volatile=True)
-    mask9_batch = chainer.Variable(mask9[None,:,:,:], volatile=True)
+    img_batch = chainer.Variable(img[None,:,:,:])
+    mask3_batch = chainer.Variable(mask3[None,:,:,:])
+    mask9_batch = chainer.Variable(mask9[None,:,:,:])
     img_batch = mask3_batch * img_batch
 
     res_transport, res_albedo, res_light = m_shared(img_batch)
