@@ -57,6 +57,7 @@ if light.shape[0] < light.shape[1]:
     light = light.T
 
 n_rotation_div = 72
+n_rotations = 10
 
 for i in range(n_files):
     file = transport_files[i]
@@ -89,7 +90,7 @@ for i in range(n_files):
     tmp_renderings = []
     max_val = 0.
 
-    for j in range(n_rotation_div):
+    for j in range(n_rotations * n_rotation_div):
         deg = (360. / n_rotation_div) * j
         R = sh_rot.calc_y_rot(deg / 180. * np.pi)
         coeffs = np.empty_like(light)
@@ -114,7 +115,7 @@ for i in range(n_files):
     if not os.path.exists(save_basepath):
         os.makedirs(save_basepath)
 
-    for j in range(n_rotation_div):
+    for j in range(n_rotations * n_rotation_div):
         rendering = 255 * tmp_renderings[j] / max_val
         if gpu>-1:
             rendering = cuda.to_cpu(rendering)
