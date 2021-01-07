@@ -13,7 +13,7 @@ sudo apt install ffmpeg
 # Usage
 ```
 python test_with_photos.py -g=0     # Output light, light transport, albedo, shading, rendering
-python relight.py                   # Output relighting frames and video
+python relight.py -g=0              # Output relighting frames and video
 python test_with_photos_relight.py  # Calls iris.relighting_humans.RelightingHumans
 ```
 # Original Readme.txt
