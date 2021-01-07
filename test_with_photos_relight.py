@@ -15,7 +15,7 @@ import model
 import sh_rot
 from SquarizeImage import SquarizeImage
 
-from lighting.relighting_humans import RelightingHumans
+from iris.lighting.relighting_humans import RelightingHumans
 relighting_humans_model = RelightingHumans()
 
 light_path = 'test_lights/cluster08.npy'
