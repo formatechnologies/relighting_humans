@@ -57,7 +57,7 @@ if light.shape[0] < light.shape[1]:
     light = light.T
 
 n_rotation_div = 72
-n_rotations = 10
+n_rotations = 1
 
 for i in range(n_files):
     file = transport_files[i]
