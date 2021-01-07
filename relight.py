@@ -123,5 +123,7 @@ for i in range(n_files):
 
     video_path = save_basepath + '.mp4'
     files_path = save_basepath + '/frame%03d.jpg'
-    os.system('ffmpeg -y -r 30 -i ' + files_path + ' -vcodec libx264 -pix_fmt yuv420p -r 60 ' + video_path)
+    command = f'ffmpeg -y -r 30 -i {files_path} -vcodec libx264 -pix_fmt yuv420p -r 60 {video_path}'
+    print(command)
+    os.system(command)
 
