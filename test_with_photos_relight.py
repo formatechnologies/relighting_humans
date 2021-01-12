@@ -33,7 +33,7 @@ for i in range(n_files):
     img_orig = cv2.imread(file, cv2.IMREAD_COLOR)
     mask_orig = cv2.imread(file[:-4]+'_mask.png', cv2.IMREAD_GRAYSCALE)
 
-    transport, albedo, light, shading, rendering = relighting_humans_model.run(img_orig, mask_orig})
+    transport, albedo, light, shading, rendering = relighting_humans_model.run(img_orig, mask_orig)
     image_concat = np.hstack((img_orig.astype(np.float32)/255, shading.clip(0, 1), albedo.clip(0, 1), rendering.clip(0, 1)))
     renderings = relighting_humans_model.generate_renderings(img_orig, mask_orig, transport, albedo, default_light)
 
