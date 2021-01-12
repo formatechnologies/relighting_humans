@@ -1,19 +1,9 @@
-import sys
 import os
 from glob import glob
-import time
 
 import numpy as np
 import cv2
 
-import chainer
-from chainer import cuda
-from chainer import serializers
-import chainer.functions as f
-
-import model
-import sh_rot
-from SquarizeImage import SquarizeImage
 
 from iris.lighting.relighting_humans import RelightingHumans
 relighting_humans_model = RelightingHumans()
