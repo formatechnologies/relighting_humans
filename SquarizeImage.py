@@ -40,16 +40,16 @@ class SquarizeImage:
             if len(resized_square.shape) == 2:
                 resized_square = resized_square.reshape((resized_square.shape[0], resized_square.shape[1], new_img.shape[2]))
 
-#        print('new_img.shape = {}, resized_square.shape = {}'.format(new_img.shape, resized_square.shape))
+        # print('new_img.shape = {}, resized_square.shape = {}'.format(new_img.shape, resized_square.shape))
 
         if len(img_square.shape) == 3:
             new_img[self.y_trimmed:self.y_trimmed+self.h_trimmed,self.x_trimmed:self.x_trimmed+self.w_trimmed,:] = resized_square[self.y_square:self.y_square+self.h_trimmed,self.x_square:self.x_square+self.w_trimmed,:]
-            mask = np.repeat(mask_orig.reshape((mask_orig.shape[0], mask_orig.shape[1], 1)), img_square.shape[2], axis=2) / 255.
+            mask = np.repeat(mask_orig.reshape((mask_orig.shape[0], mask_orig.shape[1], 1)), img_square.shape[2], axis=2) / np.float32(255.)
         else:
             new_img[self.y_trimmed:self.y_trimmed+self.h_trimmed,self.x_trimmed:self.x_trimmed+self.w_trimmed] = resized_square[self.y_square:self.y_square+self.h_trimmed,self.x_square:self.x_square+self.w_trimmed]
-            mask = mask_orig / 255.
+            mask = mask_orig / np.float32(255.)
 
-#        print('mask.shape = {}, new_img.shape = {}, img_orig.shape = {}'.format(mask.shape, new_img.shape, img_orig.shape))
+        # print('mask.shape = {}, new_img.shape = {}, img_orig.shape = {}'.format(mask.shape, new_img.shape, img_orig.shape))
 
         return mask * new_img + (1. - mask) * img_orig
 
