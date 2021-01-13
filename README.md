@@ -11,9 +11,10 @@ python3 -m pip install --user opencv-python==4.1.2.30
 sudo apt install ffmpeg
 ```
 Download model file:
-http://kanamori.cs.tsukuba.ac.jp/projects/relighting_human/model_060.chainer
-to
-`models/model_060.chainer`
+```
+mkdir models
+curl http://kanamori.cs.tsukuba.ac.jp/projects/relighting_human/model_060.chainer -o models/model_060.chainer
+```
 # Usage
 ```
 python test_with_photos.py -g=0     # Output light, light transport, albedo, shading, rendering
