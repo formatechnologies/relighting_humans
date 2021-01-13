@@ -5,9 +5,9 @@ Install
 - OpenCV Python
 - ffmpeg (optional)
 ```
-python3 -m pip install --user chainer
-python3 -m pip install --user cupy-cuda100
-python3 -m pip install --user opencv-python
+python3 -m pip install --user chainer==7.7.0
+python3 -m pip install --user cupy-cuda101==7.7.0
+python3 -m pip install --user opencv-python==4.1.2.30
 sudo apt install ffmpeg
 ```
 Download model file:
