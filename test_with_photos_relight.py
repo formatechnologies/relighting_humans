@@ -4,6 +4,7 @@ from glob import glob
 import numpy as np
 import cv2
 
+from iris.utility.misc import to_np_float32
 
 from iris.lighting.relighting_humans import RelightingHumans
 relighting_humans_model = RelightingHumans()
@@ -30,16 +31,16 @@ for i in range(n_files):
     file = img_paths[i]
     print('Processing [%03d/%03d] %s' % (i+1, n_files, file))
 
-    img_orig = cv2.imread(file, cv2.IMREAD_COLOR)
-    mask_orig = cv2.imread(file[:-4]+'_mask.png', cv2.IMREAD_GRAYSCALE)
+    img_orig = to_np_float32(cv2.imread(file, cv2.IMREAD_COLOR))
+    mask_orig = to_np_float32(cv2.imread(file[:-4]+'_mask.png', cv2.IMREAD_GRAYSCALE))
 
     transport, albedo, light, shading, rendering = relighting_humans_model.run(img_orig, mask_orig)
     image_concat = np.hstack((img_orig.astype(np.float32)/255, shading.clip(0, 1), albedo.clip(0, 1), rendering.clip(0, 1)))
     renderings = relighting_humans_model.generate_renderings(img_orig, mask_orig, transport, albedo, default_light)
 
     basename = os.path.basename(file)[:-4]
-    cv2.imwrite(outdir_path+os.path.basename(file), img_orig)
-    cv2.imwrite(outdir_path+basename+'_mask.png', mask_orig)
+    cv2.imwrite(outdir_path+os.path.basename(file), 255 * img_orig)
+    cv2.imwrite(outdir_path+basename+'_mask.png', 255 * mask_orig)
     cv2.imwrite(outdir_path+basename+'_albedo.jpg', 255 * albedo)
     cv2.imwrite(outdir_path+basename+'_shading.jpg', 255 * shading)
     cv2.imwrite(outdir_path+basename+'_rendering.jpg', 255 * rendering)
